@@ -23,6 +23,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +57,8 @@ class MainActivity : ComponentActivity() {
                         navController,
                         score,
                         { score = it },
-                        "home", "tela2"
+                        "home", "tela2",
+                        imagemFundo = R.drawable.vila
                     )
                 }
                 composable("tela2") {
@@ -66,7 +73,8 @@ class MainActivity : ComponentActivity() {
                         navController,
                         score,
                         { score = it },
-                        "tela1", "tela3"
+                        "tela1", "tela3",
+                        imagemFundo = R.drawable.casa
                     )
                 }
                 composable("tela3") {
@@ -81,7 +89,8 @@ class MainActivity : ComponentActivity() {
                         navController,
                         score,
                         { score = it },
-                        "tela2", "tela4"
+                        "tela2", "tela4",
+                        imagemFundo = R.drawable.travessia
                     )
                 }
                 composable("tela4") {
@@ -96,7 +105,8 @@ class MainActivity : ComponentActivity() {
                         navController,
                         score,
                         { score = it },
-                        "tela3", "tela5"
+                        "tela3", "tela5",
+                        imagemFundo = R.drawable.castelo
                     )
                 }
                 composable("tela5") {
@@ -111,7 +121,8 @@ class MainActivity : ComponentActivity() {
                         navController,
                         score,
                         { score = it },
-                        "tela4", "final"
+                        "tela4", "final",
+                        imagemFundo = R.drawable.encontro
                     )
                 }
                 composable("final") {
@@ -152,59 +163,62 @@ fun TelaJogo(
     score: Int,
     onScoreChange: (Int) -> Unit,
     telaAnterior: String,
-    proximaTela: String
+    proximaTela: String,
+    imagemFundo: Int  // ID do recurso da imagem
 ) {
     var mensagem by remember { mutableStateOf<String?>(null) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Gray)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = nomeTela, fontSize = 20.sp, color = Color.White)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = historia, fontSize = 16.sp, color = Color.LightGray)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = imagemFundo),
+            contentDescription = "Imagem de fundo",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        botoes.forEach { (texto, isCerto) ->
-            Button(
-                onClick = {
-                    mensagem = if (isCerto) {
-                        onScoreChange(score + 1)
-                        "Escolha Certa! ✅"
-                    } else {
-                        "Escolha Errada! ❌"
-                    }
-                },
-                modifier = Modifier.padding(4.dp)
-            ) {
-                Text(texto)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        mensagem?.let {
-            Text(text = it, fontSize = 18.sp, color = if (it.contains("Certa")) Color.Green else Color.Red)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = nomeTela, fontSize = 20.sp, color = Color.White)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = historia, fontSize = 16.sp, color = Color.White)
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row {
+            botoes.forEach { (texto, isCerto) ->
                 Button(
-                    onClick = { navController.navigate(telaAnterior) },
-                    modifier = Modifier.padding(4.dp)
+                    onClick = {
+                        mensagem = if (isCerto) {
+                            onScoreChange(score + 1)
+                            "Escolha Certa! ✅"
+                        } else {
+                            "Escolha Errada! ❌"
+                        }
+                    },
+                    modifier = Modifier.padding(4.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Voltar")
+                    Text(texto)
                 }
+            }
 
-                Button(
-                    onClick = { navController.navigate(proximaTela) },
-                    modifier = Modifier.padding(4.dp)
-                ) {
-                    Text("Próximo")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            mensagem?.let {
+                Text(text = it, fontSize = 18.sp, color = if (it.contains("Certa")) Color.Green else Color.Red)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row {
+                    Button(onClick = { navController.navigate(telaAnterior) }) {
+                        Text("Voltar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = { navController.navigate(proximaTela) }) {
+                        Text("Próximo")
+                    }
                 }
             }
         }
