@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -47,10 +48,10 @@ class MainActivity : ComponentActivity() {
                             "Atirar nos inimigos de frente" to false,
                             "Pular no meio da vila sem plano" to false
                         ),
-                        navController = navController,
-                        score = score,
-                        onScoreChange = { score = it },
-                        proximaTela = "tela2"
+                        navController,
+                        score,
+                        { score = it },
+                        "home", "tela2"
                     )
                 }
                 composable("tela2") {
@@ -62,10 +63,10 @@ class MainActivity : ComponentActivity() {
                             "Abrir a porta sem verificar" to false,
                             "Chutar a porta com força" to false
                         ),
-                        navController = navController,
-                        score = score,
-                        onScoreChange = { score = it },
-                        proximaTela = "tela3"
+                        navController,
+                        score,
+                        { score = it },
+                        "tela1", "tela3"
                     )
                 }
                 composable("tela3") {
@@ -77,10 +78,10 @@ class MainActivity : ComponentActivity() {
                             "Passar pela ponte principal" to false,
                             "Tentar nadar pelo rio" to false
                         ),
-                        navController = navController,
-                        score = score,
-                        onScoreChange = { score = it },
-                        proximaTela = "tela4"
+                        navController,
+                        score,
+                        { score = it },
+                        "tela2", "tela4"
                     )
                 }
                 composable("tela4") {
@@ -92,10 +93,10 @@ class MainActivity : ComponentActivity() {
                             "Seguir pelos corredores iluminados" to false,
                             "Escalar uma parede" to true
                         ),
-                        navController = navController,
-                        score = score,
-                        onScoreChange = { score = it },
-                        proximaTela = "tela5"
+                        navController,
+                        score,
+                        { score = it },
+                        "tela3", "tela5"
                     )
                 }
                 composable("tela5") {
@@ -107,10 +108,10 @@ class MainActivity : ComponentActivity() {
                             "Avançar sem cautela" to false,
                             "Atacar tudo que vê" to false
                         ),
-                        navController = navController,
-                        score = score,
-                        onScoreChange = { score = it },
-                        proximaTela = "final"
+                        navController,
+                        score,
+                        { score = it },
+                        "tela4", "final"
                     )
                 }
                 composable("final") {
@@ -150,8 +151,11 @@ fun TelaJogo(
     navController: androidx.navigation.NavController,
     score: Int,
     onScoreChange: (Int) -> Unit,
+    telaAnterior: String,
     proximaTela: String
 ) {
+    var mensagem by remember { mutableStateOf<String?>(null) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -169,12 +173,39 @@ fun TelaJogo(
         botoes.forEach { (texto, isCerto) ->
             Button(
                 onClick = {
-                    val novoScore = if (isCerto) score + 1 else score
-                    onScoreChange(novoScore)
-                    navController.navigate(proximaTela)
-                }
+                    mensagem = if (isCerto) {
+                        onScoreChange(score + 1)
+                        "Escolha Certa! ✅"
+                    } else {
+                        "Escolha Errada! ❌"
+                    }
+                },
+                modifier = Modifier.padding(4.dp)
             ) {
                 Text(texto)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        mensagem?.let {
+            Text(text = it, fontSize = 18.sp, color = if (it.contains("Certa")) Color.Green else Color.Red)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row {
+                Button(
+                    onClick = { navController.navigate(telaAnterior) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Voltar")
+                }
+
+                Button(
+                    onClick = { navController.navigate(proximaTela) },
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    Text("Próximo")
+                }
             }
         }
     }
@@ -183,15 +214,13 @@ fun TelaJogo(
 @Composable
 fun TelaFinal(mensagem: String, corFundo: Color, navController: androidx.navigation.NavController) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(corFundo)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = mensagem, fontSize = 24.sp, color = Color.White)
-
         Button(onClick = { navController.navigate("home") }) {
             Text("Jogar Novamente")
         }
