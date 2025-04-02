@@ -108,9 +108,9 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("final") {
                     when {
-                        score == 5 -> TelaFinal("Leon achou Ashley Viva!", Color.Green)
-                        score >= 3 -> TelaFinal("Leon achou Ashley Morta!", Color.DarkGray)
-                        else -> TelaFinal("Leon Morreu!", Color.Red)
+                        score == 5 -> TelaFinal("Leon achou Ashley Viva!", Color.Green, navController)
+                        score >= 3 -> TelaFinal("Leon achou Ashley Morta!", Color.DarkGray, navController)
+                        else -> TelaFinal("Leon Morreu!", Color.Red, navController)
                     }
                 }
             }
@@ -169,7 +169,7 @@ fun TelaJogo(
 }
 
 @Composable
-fun TelaFinal(mensagem: String, corFundo: Color) {
+fun TelaFinal(mensagem: String, corFundo: Color, navController: androidx.navigation.NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -179,6 +179,10 @@ fun TelaFinal(mensagem: String, corFundo: Color) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = mensagem, fontSize = 24.sp, color = Color.White)
+
+        Button(onClick = { navController.navigate("home") }) {
+            Text("Jogar Novamente")
+        }
     }
 }
 
